@@ -22,10 +22,10 @@ class Activity:
 
 @dataclass(frozen=True)
 class TimeEntry:
-    issue_id: str
+    issue: Issue
     date: date
     hours: float
-    activity_id: str
+    activity: Activity
     comment: Optional[str]
 
 
@@ -82,18 +82,14 @@ def add_time_entry(time_entry: TimeEntry) -> None:
     pass
 
 
-def describe_time_entry(
-    time_entry: TimeEntry,
-    issue: Issue,
-    activity: Activity,
-) -> Iterable[str]:
+def describe_time_entry(time_entry: TimeEntry) -> Iterable[str]:
     labels_and_values = [
-        ("issue ID", f"#{issue.id_}"),
-        ("issue title", issue.title),
-        ("project", issue.project),
+        ("issue ID", f"#{time_entry.issue.id_}"),
+        ("issue title", time_entry.issue.title),
+        ("project", time_entry.issue.project),
         ("date", time_entry.date),
         ("time spent", f"{time_entry.hours} hours"),
-        ("activity", activity.name),
+        ("activity", time_entry.activity.name),
     ]
     if time_entry.comment:
         labels_and_values.append(("comment", time_entry.comment))
@@ -111,14 +107,14 @@ def main() -> None:
     issue = get_issue(issue_id_from_description(args.issue))
     activity = lookup_activity(args.activity)
     time_entry = TimeEntry(
-        issue_id=issue.id_,
+        issue=issue,
         date=date.today(),
         hours=hours_from_description(datetime.now(), args.time),
-        activity_id=activity.id_,
+        activity=activity,
         comment=args.comment,
     )
 
-    for line in describe_time_entry(time_entry, issue, activity):
+    for line in describe_time_entry(time_entry):
         print(line)
     answer = input("confirm time entry? ")
     if answer.lower() in ("y", "yes"):
