@@ -28,6 +28,19 @@ class TimeEntry:
     activity: Activity
     comment: Optional[str]
 
+    def describe(self) -> Iterable[str]:
+        labels_and_values = [
+            ("issue ID", f"#{self.issue.id_}"),
+            ("issue title", self.issue.title),
+            ("project", self.issue.project),
+            ("date", self.date),
+            ("time spent", f"{self.hours} hours"),
+            ("activity", self.activity.name),
+        ]
+        if self.comment:
+            labels_and_values.append(("comment", self.comment))
+        return (f"{label:<11}: {value}" for (label, value) in labels_and_values)
+
 
 def issue_id_from_description(description: str) -> str:
     if description == ".":
@@ -82,20 +95,6 @@ def add_time_entry(time_entry: TimeEntry) -> None:
     pass
 
 
-def describe_time_entry(time_entry: TimeEntry) -> Iterable[str]:
-    labels_and_values = [
-        ("issue ID", f"#{time_entry.issue.id_}"),
-        ("issue title", time_entry.issue.title),
-        ("project", time_entry.issue.project),
-        ("date", time_entry.date),
-        ("time spent", f"{time_entry.hours} hours"),
-        ("activity", time_entry.activity.name),
-    ]
-    if time_entry.comment:
-        labels_and_values.append(("comment", time_entry.comment))
-    return (f"{label:<11}: {value}" for (label, value) in labels_and_values)
-
-
 def main() -> None:
     parser = argparse.ArgumentParser(description="Log time spent on a Redmine issue.")
     parser.add_argument("issue", help="issue ID")
@@ -114,7 +113,7 @@ def main() -> None:
         comment=args.comment,
     )
 
-    for line in describe_time_entry(time_entry):
+    for line in time_entry.describe():
         print(line)
     answer = input("confirm time entry? ")
     if answer.lower() in ("y", "yes"):
