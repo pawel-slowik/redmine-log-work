@@ -19,6 +19,20 @@ class Activity:
     id_: str
     name: str
 
+    def matches(self, search: str) -> bool:
+        if self.id_ == search:
+            return True
+        if self.name == search:
+            return True
+        words = self.name.split()
+        for word in words:
+            if search in word:
+                return True
+        acronym = "".join(word[0] for word in words)
+        if acronym == search:
+            return True
+        return False
+
 
 @dataclass(frozen=True)
 class TimeEntry:
@@ -77,8 +91,13 @@ def lookup_activity(description: str) -> Activity:
 
 
 def match_activity(search: str, activities: Iterable[Activity]) -> Activity:
-    # TODO: implement
-    return Activity(id_="7", name="code review")
+    matching_activities = set(
+        activity for activity in activities if activity.matches(search)
+    )
+    count = len(matching_activities)
+    if count == 1:
+        return matching_activities.pop()
+    raise ValueError(f"{'multiple' if count else 'no'} activities matching `{search}`")
 
 
 def list_allowed_activities() -> Iterable[Activity]:
