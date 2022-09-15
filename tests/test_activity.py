@@ -50,3 +50,13 @@ def test_match_not_found() -> None:
     ]
     with pytest.raises(Exception):
         match_activity("foo", activities)
+
+
+def test_match_inconclusive() -> None:
+    activities = [
+        Activity(id_="1", name="business analysis"),
+        Activity(id_="2", name="development"),
+        Activity(id_="3", name="code review"),
+    ]
+    with pytest.raises(Exception):
+        match_activity("de", activities)
