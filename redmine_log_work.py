@@ -82,8 +82,42 @@ def current_directory() -> str:
 
 
 def hours_from_description(date_time: datetime, description: str) -> float:
-    # TODO: implement
-    return 1.2
+
+    def from_range(date_time: datetime, description: str) -> float:
+
+        def dt_hour_minute(date_time: datetime, timespec: str) -> datetime:
+            hour, minute = map(int, timespec.split(":", 1))
+            return date_time.replace(hour=hour, minute=minute, second=0, microsecond=0)
+
+        if description and description[0] == "~":
+            return from_range(date_time, description[1:] + "-now")
+        parts = description.split("-", 1)
+        begin = dt_hour_minute(date_time, parts[0])
+        end = date_time if parts[1] in ("", "now") else dt_hour_minute(date_time, parts[1])
+        if begin >= end:
+            raise ValueError(f"time range must not end before it begins: `{description}`")
+        return (end - begin).total_seconds() / 3600
+
+    def from_length(description: str) -> float:
+        parts = description.split(":", 1)
+        minutes = int(parts.pop())
+        if minutes < 1:
+            raise ValueError(f"can not log an interval `{description}` shorter than one minute")
+        if not parts:
+            return minutes / 60
+        if minutes > 59:
+            raise ValueError(
+                f"number of minutes must be lower than 60" \
+                f" for the hours:minutes format: `{description}`"
+            )
+        hours = 0 if parts == [""] else int(parts.pop())
+        if hours < 0:
+            raise ValueError(f"can not log negative hours: `{description}`")
+        return hours + minutes / 60
+
+    if "-" in description or "~" in description:
+        return from_range(date_time, description)
+    return from_length(description)
 
 
 def lookup_activity(description: str) -> Activity:
