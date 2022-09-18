@@ -76,11 +76,6 @@ def issue_id_from_branch_name(branch_name: str) -> str:
     raise ValueError(f"can not extract issue ID from branch name: `{branch_name}`")
 
 
-def get_issue(id_: str) -> Issue:
-    # TODO: fetch from REST API
-    return Issue(id_=id_, title="issue title", project="project title")
-
-
 def branch_name_from_directory(directory_name: str) -> str:
     process = subprocess.run(
         ["git", "status", "-z", "--porcelain=v2", "--branch"],
@@ -150,6 +145,11 @@ def match_activity(search: str, activities: Iterable[Activity]) -> Activity:
     if count == 1:
         return matching_activities.pop()
     raise ValueError(f"{'multiple' if count else 'no'} activities matching `{search}`")
+
+
+def get_issue(id_: str) -> Issue:
+    # TODO: fetch from REST API
+    return Issue(id_=id_, title="issue title", project="project title")
 
 
 def list_allowed_activities() -> Iterable[Activity]:
