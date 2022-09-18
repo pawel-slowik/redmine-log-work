@@ -5,6 +5,7 @@ from datetime import date, datetime
 from typing import Optional, Iterable
 import os.path
 import string
+import subprocess
 import argparse
 
 
@@ -81,8 +82,17 @@ def get_issue(id_: str) -> Issue:
 
 
 def branch_name_from_directory(directory_name: str) -> str:
-    # TODO: implement
-    return "bugfix-456"
+    process = subprocess.run(
+        ["git", "status", "-z", "--porcelain=v2", "--branch"],
+        cwd=directory_name,
+        capture_output=True,
+        check=True,
+    )
+    parts = process.stdout.split(b"\0")
+    for part in parts:
+        if part.startswith(b"# branch.head "):
+            return part[14:].decode("utf-8")
+    raise ValueError(f"can not read branch name in directory: `{directory_name}`")
 
 
 def current_directory() -> str:
