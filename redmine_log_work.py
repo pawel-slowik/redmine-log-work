@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Optional, Iterable
 import os.path
+import string
 import argparse
 
 
@@ -12,6 +13,10 @@ class Issue:
     id_: str
     title: str
     project: str
+
+    @staticmethod
+    def id_is_valid(check: str) -> bool:
+        return check.strip(string.digits) == ""
 
 
 @dataclass(frozen=True)
@@ -63,8 +68,11 @@ def issue_id_from_description(description: str) -> str:
 
 
 def issue_id_from_branch_name(branch_name: str) -> str:
-    # TODO: implement
-    return "456"
+    parts = branch_name.split("/", 1).pop().split("-")
+    for index in (0, -1):
+        if Issue.id_is_valid(parts[index]):
+            return parts[index]
+    raise ValueError(f"can not extract issue ID from branch name: `{branch_name}`")
 
 
 def get_issue(id_: str) -> Issue:
