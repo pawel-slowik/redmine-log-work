@@ -4,20 +4,15 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from typing import Optional, Iterable
 import os.path
-import string
 import subprocess
 import argparse
 
 
 @dataclass(frozen=True)
 class Issue:
-    id_: str
+    id_: int
     title: str
     project: str
-
-    @staticmethod
-    def id_is_valid(check: str) -> bool:
-        return check.strip(string.digits) == ""
 
 
 @dataclass(frozen=True)
@@ -62,17 +57,19 @@ class TimeEntry:
         return (f"{label:<11}: {value}" for (label, value) in labels_and_values)
 
 
-def issue_id_from_description(description: str) -> str:
+def issue_id_from_description(description: str) -> int:
     if description == ".":
         return issue_id_from_branch_name(branch_name_from_directory(current_directory()))
-    return description
+    return int(description)
 
 
-def issue_id_from_branch_name(branch_name: str) -> str:
+def issue_id_from_branch_name(branch_name: str) -> int:
     parts = branch_name.split("/", 1).pop().split("-")
     for index in (0, -1):
-        if Issue.id_is_valid(parts[index]):
-            return parts[index]
+        try:
+            return int(parts[index])
+        except ValueError:
+            pass
     raise ValueError(f"can not extract issue ID from branch name: `{branch_name}`")
 
 
@@ -147,7 +144,7 @@ def match_activity(search: str, activities: Iterable[Activity]) -> Activity:
     raise ValueError(f"{'multiple' if count else 'no'} activities matching `{search}`")
 
 
-def get_issue(id_: str) -> Issue:
+def get_issue(id_: int) -> Issue:
     # TODO: fetch from REST API
     return Issue(id_=id_, title="issue title", project="project title")
 
