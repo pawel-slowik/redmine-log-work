@@ -17,11 +17,11 @@ class Issue:
 
 @dataclass(frozen=True)
 class Activity:
-    id_: str
+    id_: int
     name: str
 
     def matches(self, search: str) -> bool:
-        if self.id_ == search:
+        if str(self.id_) == search:
             return True
         if self.name == search:
             return True
@@ -152,9 +152,9 @@ def get_issue(id_: int) -> Issue:
 def list_allowed_activities() -> Iterable[Activity]:
     # TODO: fetch from REST API
     return [
-        Activity(id_="1", name="business analysis"),
-        Activity(id_="2", name="development"),
-        Activity(id_="3", name="code review"),
+        Activity(id_=1, name="business analysis"),
+        Activity(id_=2, name="development"),
+        Activity(id_=3, name="code review"),
     ]
 
 
