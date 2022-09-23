@@ -2,9 +2,13 @@
 
 from dataclasses import dataclass
 from datetime import date, datetime
-from typing import Optional, Iterable
+from typing import Optional, Iterable, Any
 import os.path
 import subprocess
+import configparser
+import urllib.parse
+import urllib.request
+import json
 import argparse
 
 
@@ -55,6 +59,18 @@ class TimeEntry:
         if self.comment:
             labels_and_values.append(("comment", self.comment))
         return (f"{label:<11}: {value}" for (label, value) in labels_and_values)
+
+
+@dataclass(frozen=True)
+class ApiConfig:
+    url: str
+    key: Optional[str]
+
+
+@dataclass(frozen=True)
+class ApiResponse:
+    status: int
+    data: Any
 
 
 def issue_id_from_description(description: str) -> int:
@@ -147,22 +163,48 @@ def match_activity(search: str, activities: Iterable[Activity]) -> Activity:
 
 
 def get_issue(id_: int) -> Issue:
-    # TODO: fetch from REST API
-    return Issue(id_=id_, title="issue title", project="project title")
+    issue = api_request("/issues/" + str(id_)).data["issue"]
+    return Issue(id_=id_, title=issue["subject"], project=issue["project"]["name"])
 
 
 def list_allowed_activities() -> Iterable[Activity]:
-    # TODO: fetch from REST API
-    return [
-        Activity(id_=1, name="business analysis"),
-        Activity(id_=2, name="development"),
-        Activity(id_=3, name="code review"),
-    ]
+    activities = api_request("/enumerations/time_entry_activities").data["time_entry_activities"]
+    return [Activity(id_=activity["id"], name=activity["name"]) for activity in activities]
 
 
 def add_time_entry(time_entry: TimeEntry) -> None:
-    # TODO: implement via REST API
-    pass
+    time_entry_data = {
+        "issue_id": time_entry.issue.id_,
+        "spent_on": time_entry.date.isoformat(),
+        "hours": time_entry.hours,
+        "activity_id": time_entry.activity.id_,
+    }
+    if time_entry.comment:
+        time_entry_data["comments"] = time_entry.comment
+    response = api_request("/time_entries", {"time_entry": time_entry_data})
+    if response.status != 201:
+        raise ValueError(f"unexpected API response status: `{response.status}`")
+
+
+def api_request(endpoint: str, data: Optional[Any]=None) -> ApiResponse:
+    config = api_config()
+    endpoint_url = urllib.parse.urljoin(config.url, endpoint + ".json")
+    request = urllib.request.Request(
+        endpoint_url,
+        json.dumps(data).encode("ascii") if data else None
+    )
+    if data:
+        request.add_header("Content-Type", "application/json")
+    if config.key:
+        request.add_header("X-Redmine-API-Key", config.key)
+    with urllib.request.urlopen(request) as response:
+        return ApiResponse(status=response.code, data=json.loads(response.read()))
+
+
+def api_config() -> ApiConfig:
+    cfg = configparser.ConfigParser()
+    cfg.read(os.path.expanduser("~/.config/redmine_log_work.ini"))
+    return ApiConfig(url=cfg.get("api", "url"), key=cfg.get("api", "key", fallback=None))
 
 
 def main() -> None:
