@@ -13,6 +13,7 @@ def test_minutes_only() -> None:
 def test_hours_and_minutes() -> None:
     assert hours_from_description(NOW, "0:15") == 0.25
     assert hours_from_description(NOW, "3:12") == 3.2
+    assert hours_from_description(NOW, "4:00") == 4
 
 
 def test_absolute_range() -> None:

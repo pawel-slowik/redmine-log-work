@@ -111,18 +111,20 @@ def hours_from_description(date_time: datetime, description: str) -> float:
     def from_length(description: str) -> float:
         parts = description.split(":", 1)
         minutes = int(parts.pop())
-        if minutes < 1:
-            raise ValueError(f"can not log an interval `{description}` shorter than one minute")
-        if not parts:
+        hours = None if parts in ([], [""]) else int(parts.pop())
+        if minutes < 0:
+            raise ValueError(f"number of minutes must not be negative: `{description}`")
+        if hours is not None and hours < 0:
+            raise ValueError(f"number of hours must not be negative: `{description}`")
+        if hours is None:
+            if minutes < 1:
+                raise ValueError(f"can not log an interval `{description}` shorter than one minute")
             return minutes / 60
         if minutes > 59:
             raise ValueError(
                 f"number of minutes must be lower than 60" \
                 f" for the hours:minutes format: `{description}`"
             )
-        hours = 0 if parts == [""] else int(parts.pop())
-        if hours < 0:
-            raise ValueError(f"can not log negative hours: `{description}`")
         return hours + minutes / 60
 
     if "-" in description or "~" in description:
