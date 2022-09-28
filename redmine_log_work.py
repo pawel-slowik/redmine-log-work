@@ -208,9 +208,24 @@ def api_config() -> ApiConfig:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Log time spent on a Redmine issue.")
+    parser = argparse.ArgumentParser(
+        description="Log time spent on a Redmine issue.",
+        formatter_class=argparse.RawTextHelpFormatter,
+    )
     parser.add_argument("issue", help="issue ID, use . (dot) to extract from current branch name")
-    parser.add_argument("time", help="amount of time spent, e.g. 1:30")
+    parser.add_argument(
+        "time",
+        help="\n".join(
+            (
+                "amount of time spent, formats accepted:",
+                "\u2022 15 is 15 minutes,",
+                "\u2022 1:15 is one hour and 15 minutes",
+                "\u2022 9:00-10:00 is a time range spanning one hour",
+                "\u2022 9:00-now is a relative time range",
+                "\u2022 9:00- and ~9:00 are shortcuts for 9:00-now",
+            )
+        )
+    )
     parser.add_argument("activity", help="activity type")
     parser.add_argument("comment", nargs="?", help="optional comment")
     args = parser.parse_args()
