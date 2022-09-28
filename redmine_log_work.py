@@ -209,7 +209,7 @@ def api_config() -> ApiConfig:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Log time spent on a Redmine issue.")
-    parser.add_argument("issue", help="issue ID")
+    parser.add_argument("issue", help="issue ID, use . (dot) to extract from current branch name")
     parser.add_argument("time", help="amount of time spent, e.g. 1:30")
     parser.add_argument("activity", help="activity type")
     parser.add_argument("comment", nargs="?", help="optional comment")
