@@ -226,7 +226,15 @@ def main() -> None:
             )
         )
     )
-    parser.add_argument("activity", help="activity type")
+    parser.add_argument(
+        "activity",
+        help="\n".join(
+            (
+                "activity type, can be a shortcut, e.g. CR instead of Code Review",
+                "as long as it identifies an activity unambiguously",
+            )
+        )
+    )
     parser.add_argument("comment", nargs="?", help="optional comment")
     args = parser.parse_args()
 
