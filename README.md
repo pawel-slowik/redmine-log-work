@@ -1,3 +1,7 @@
+![Build Status][build-badge]
+
+[build-badge]: https://github.com/pawel-slowik/redmine-log-work/workflows/tests/badge.svg
+
 # redmine-log-work
 
 This is a CLI utility for logging work time in
