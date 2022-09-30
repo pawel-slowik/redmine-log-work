@@ -61,8 +61,10 @@ case. If you're looking for a full blown Redmine CLI, take a look at
 
 # Tests
 
-The following packages are required for running tests:
-[pytest](https://pypi.org/project/pytest/),
-[pytest-mock](https://pypi.org/project/pytest-mock/). Run tests with:
+Install packages required for running test:
+
+	pip install -U -r requirements-test.txt
+
+Run tests with:
 
 	pytest
