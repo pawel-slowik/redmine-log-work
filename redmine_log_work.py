@@ -27,9 +27,11 @@ class Activity:
     def matches(self, search: str) -> bool:
         if str(self.id_) == search:
             return True
-        if self.name == search:
+        search = search.lower()
+        name = self.name.lower()
+        if name == search:
             return True
-        words = self.name.split()
+        words = name.split()
         for word in words:
             if search in word:
                 return True
