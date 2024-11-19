@@ -28,7 +28,8 @@ If you want to automatically extract issue ID from current
 # Configuration
 
 Copy the included example configuration file into the `$HOME/.config` directory
-and edit it to include your Redmine URL and API key.
+and edit it to include your Redmine URL and API key. You can also define aliases
+for issue IDs.
 
 
 # Usage
@@ -38,7 +39,7 @@ and edit it to include your Redmine URL and API key.
 	Log time spent on a Redmine issue.
 
 	positional arguments:
-	  issue       issue ID, use . (dot) to extract from current branch name
+	  issue       issue ID or alias, use . (dot) to extract from current branch name
 	  time        amount of time spent, formats accepted:
 	              • 15 is 15 minutes,
 	              • 1:15 is one hour and 15 minutes

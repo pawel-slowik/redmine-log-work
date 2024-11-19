@@ -78,7 +78,16 @@ class ApiResponse:
 def issue_id_from_description(description: str) -> int:
     if description == ".":
         return issue_id_from_branch_name(branch_name_from_directory(current_directory()))
+    aliased_id = issue_id_from_alias(description)
+    if aliased_id is not None:
+        return aliased_id
     return int(description)
+
+
+def issue_id_from_alias(alias: str) -> Optional[int]:
+    cfg = read_config()
+    id_ = cfg.get("alias.issue", alias, fallback=None)
+    return None if id_ is None else int(id_)
 
 
 def issue_id_from_branch_name(branch_name: str) -> int:
@@ -204,9 +213,14 @@ def api_request(endpoint: str, data: Optional[Any]=None) -> ApiResponse:
 
 
 def api_config() -> ApiConfig:
+    cfg = read_config()
+    return ApiConfig(url=cfg.get("api", "url"), key=cfg.get("api", "key", fallback=None))
+
+
+def read_config() -> configparser.ConfigParser:
     cfg = configparser.ConfigParser()
     cfg.read(os.path.expanduser("~/.config/redmine_log_work.ini"))
-    return ApiConfig(url=cfg.get("api", "url"), key=cfg.get("api", "key", fallback=None))
+    return cfg
 
 
 def main() -> None:
@@ -214,7 +228,10 @@ def main() -> None:
         description="Log time spent on a Redmine issue.",
         formatter_class=argparse.RawTextHelpFormatter,
     )
-    parser.add_argument("issue", help="issue ID, use . (dot) to extract from current branch name")
+    parser.add_argument(
+        "issue",
+        help="issue ID or alias, use . (dot) to extract from current branch name",
+    )
     parser.add_argument(
         "time",
         help="\n".join(
