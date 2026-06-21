@@ -1,6 +1,9 @@
 ![Build Status][build-badge]
+[![coverage][coverage-badge]][coverage-url]
 
 [build-badge]: https://github.com/pawel-slowik/redmine-log-work/workflows/tests/badge.svg
+[coverage-badge]: https://pawel-slowik.github.io/redmine-log-work/badge.svg
+[coverage-url]: https://pawel-slowik.github.io/redmine-log-work/
 
 # redmine-log-work
 

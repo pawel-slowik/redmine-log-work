@@ -1,0 +1,6 @@
+[run]
+branch = True
+source = redmine_log_work
+
+[report]
+omit = tests/*

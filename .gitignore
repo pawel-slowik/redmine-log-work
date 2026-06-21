@@ -1,1 +1,4 @@
 *.pyc
+/.coverage
+/coverage_cobertura.xml
+/coverage_html
